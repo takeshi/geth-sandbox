@@ -31,10 +31,6 @@ import (
 	sandbox "github.com/takeshi/geth-sandbox/sandbox"
 )
 
-const (
-	clientIdentifier = "geth" // Client identifier to advertise over the network
-)
-
 var (
 	// Git SHA1 commit hash of the release (set via linker flags)
 	gitCommit = ""
@@ -47,8 +43,6 @@ var (
 )
 
 func main() {
-	privateKey, _ := crypto.HexToECDSA("149c6afe729dc649a4bcce4d79a1c594b3f1fc8f503175132daf637830e05cec")
-	user := bind.NewKeyedTransactor(privateKey)
 
 	set := sandbox.CreateFlagSet()
 
@@ -58,7 +52,10 @@ func main() {
 	startNode(ctx, node)
 	defer node.Stop()
 
+	privateKey, _ := crypto.HexToECDSA("149c6afe729dc649a4bcce4d79a1c594b3f1fc8f503175132daf637830e05cec")
+	user := bind.NewKeyedTransactor(privateKey)
 	sandbox.StartMining(ctx, node, &user.From)
+
 	sandbox.CreateConsole(ctx, node)
 
 	node.Wait()

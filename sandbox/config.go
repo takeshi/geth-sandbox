@@ -40,6 +40,10 @@ import (
 	"github.com/naoina/toml"
 )
 
+const (
+	clientIdentifier = "geth" // Client identifier to advertise over the network
+)
+
 var (
 	// dumpConfigCommand = cli.Command{
 	// 	Action:    utils.MigrateFlags(dumpConfig),
@@ -103,7 +107,7 @@ func loadConfig(file string, cfg *gethConfig) error {
 
 func defaultNodeConfig() node.Config {
 	cfg := node.DefaultConfig
-	// cfg.Name = clientIdentifier
+	cfg.Name = clientIdentifier
 	// cfg.Version = params.VersionWithCommit(gitCommit)
 	cfg.HTTPModules = append(cfg.HTTPModules, "eth", "shh")
 	cfg.WSModules = append(cfg.WSModules, "eth", "shh")

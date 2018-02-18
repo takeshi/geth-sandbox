@@ -22,6 +22,15 @@ func StartMining(ctx *cli.Context, node *node.Node, ethebase *common.Address) {
 	// time.Sleep(1 * time.Second)
 
 	// eth.TxPool().SetGasPrice(utils.GlobalBig(ctx, utils.GasPriceFlag.Name))
+
+	// eth.
+	type threaded interface {
+		SetThreads(threads int)
+	}
+	if th, ok := eth.Engine().(threaded); ok {
+		th.SetThreads(1)
+	}
+
 	if err := eth.StartMining(true); err != nil {
 		utils.Fatalf("Failed to start mining: %v", err)
 	}

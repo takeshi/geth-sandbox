@@ -4,18 +4,20 @@ import (
 	"testing"
 	"time"
 
+	cli2 "gopkg.in/urfave/cli.v1"
+
 	"github.com/ethereum/go-ethereum/eth"
-	cli "gopkg.in/urfave/cli.v1"
+	sandbox "github.com/takeshi/geth-sandbox/sandbox"
 )
 
 func TestMain(t *testing.T) {
 
 	// create mock cli data
-	set := createFlagSet()
-	ctx := cli.NewContext(app, set, nil)
+	set := sandbox.CreateFlagSet()
+	ctx := cli2.NewContext(app, set, nil)
 
 	// start geth
-	node := makeFullNode(ctx)
+	node := sandbox.MakeFullNode(ctx)
 	startNode(ctx, node)
 	defer node.Stop()
 

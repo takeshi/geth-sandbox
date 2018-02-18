@@ -14,38 +14,42 @@
 // You should have received a copy of the GNU General Public License
 // along with go-ethereum. If not, see <http://www.gnu.org/licenses/>.
 
-package main
+package sandbox
 
 import (
 	"bufio"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"os"
 	"reflect"
 	"unicode"
 
-	cli "gopkg.in/urfave/cli.v1"
+	// "gopkg.in/urfave/cli.v1"
 
-	"github.com/ethereum/go-ethereum/cmd/utils"
+	// "github.com/ethereum/go-ethereum/cmd/utils"
+	// "github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/dashboard"
 	"github.com/ethereum/go-ethereum/eth"
 	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/takeshi/geth-sandbox/utils"
+	cli "gopkg.in/urfave/cli.v1"
+	// cli "gopkg.in/urfave/cli.v1"
 	// whisper "github.com/ethereum/go-ethereum/whisper/whisperv5"
 	"github.com/naoina/toml"
 )
 
 var (
-	dumpConfigCommand = cli.Command{
-		Action:    utils.MigrateFlags(dumpConfig),
-		Name:      "dumpconfig",
-		Usage:     "Show configuration values",
-		ArgsUsage: "",
-		// Flags:       append(append(nodeFlags, rpcFlags...), whisperFlags...),
-		Category:    "MISCELLANEOUS COMMANDS",
-		Description: `The dumpconfig command shows configuration values.`,
-	}
+	// dumpConfigCommand = cli.Command{
+	// 	Action:    utils.MigrateFlags(dumpConfig),
+	// 	Name:      "dumpconfig",
+	// 	Usage:     "Show configuration values",
+	// 	ArgsUsage: "",
+	// 	// Flags:       append(append(nodeFlags, rpcFlags...), whisperFlags...),
+	// 	Category:    "MISCELLANEOUS COMMANDS",
+	// 	Description: `The dumpconfig command shows configuration values.`,
+	// }
 
 	configFileFlag = cli.StringFlag{
 		Name:  "config",
@@ -99,8 +103,8 @@ func loadConfig(file string, cfg *gethConfig) error {
 
 func defaultNodeConfig() node.Config {
 	cfg := node.DefaultConfig
-	cfg.Name = clientIdentifier
-	cfg.Version = params.VersionWithCommit(gitCommit)
+	// cfg.Name = clientIdentifier
+	// cfg.Version = params.VersionWithCommit(gitCommit)
 	cfg.HTTPModules = append(cfg.HTTPModules, "eth", "shh")
 	cfg.WSModules = append(cfg.WSModules, "eth", "shh")
 	cfg.IPCPath = "geth.ipc"
@@ -150,14 +154,33 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 // 	return false
 // }
 
-func makeFullNode(ctx *cli.Context) *node.Node {
+func CreateFlagSet() *flag.FlagSet {
+	set := flag.NewFlagSet("geth-sandbox", flag.ContinueOnError)
+	utils.GCModeFlag.Apply(set)
+	utils.DataDirFlag.Apply(set)
+	utils.DeveloperFlag.Apply(set)
+	utils.NoDiscoverFlag.Apply(set)
+	utils.RPCEnabledFlag.Apply(set)
+	utils.RPCApiFlag.Apply(set)
+
+	set.Parse([]string{
+		"--datadir", "./data",
+		"--rpc",
+		"--rpcapi", "personal,eth,web3",
+		// "--dev",
+		// "--nodiscover",
+	})
+	return set
+}
+
+func MakeFullNode(ctx *cli.Context) *node.Node {
 	stack, cfg := makeConfigNode(ctx)
 
 	utils.RegisterEthService(stack, &cfg.Eth)
 
-	if ctx.GlobalBool(utils.DashboardEnabledFlag.Name) {
-		utils.RegisterDashboardService(stack, &cfg.Dashboard, gitCommit)
-	}
+	// if ctx.GlobalBool(utils.DashboardEnabledFlag.Name) {
+	// 	utils.RegisterDashboardService(stack, &cfg.Dashboard, gitCommit)
+	// }
 	// Whisper must be explicitly enabled by specifying at least 1 whisper flag or in dev mode
 	// shhEnabled := enableWhisper(ctx)
 	// shhAutoEnabled := !ctx.GlobalIsSet(utils.WhisperEnabledFlag.Name) && ctx.GlobalIsSet(utils.DeveloperFlag.Name)
